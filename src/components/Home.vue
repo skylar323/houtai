@@ -1,42 +1,105 @@
 <template>
-<!-- 头部区域 -->
+  <!-- 头部区域 -->
   <el-container>
-  <el-header>
-    <el-button type="info" @click="change">
-    </el-button>
-  </el-header>
-  <el-container>
-    <el-aside width="200px">Aside</el-aside>
-    <el-main>Main</el-main>
+    <el-header>
+      <div>
+        <img src="../logo_jw_w.png">
+        <span>选课系统</span>
+      </div>
+      <el-button @click="change">退出
+      </el-button>
+    </el-header>
+    <el-container>
+      <!-- 侧边栏 -->
+      <el-aside width="220px">
+        <el-menu class="el-menu-vertical-demo"
+         background-color="#3a8ec7"
+         text-color="#fff" margin-left=30px unique-opened 
+          router :default-active="$route.path"  >
+        <!-- 一级菜单 -->
+          <el-submenu :index='`${item.id} `' v-for="item in menulist" 
+          :key="item.id">
+            <template slot="title">
+              <span>{{item.authName}}</span>
+            </template>
+            <!-- 二级菜单 -->
+            <el-menu-item :index='`/${subItem.path} `'
+            v-for="subItem in item.children" :key="subItem.id">
+            <template slot="title">
+              <span>{{subItem.authName}}</span>
+            </template>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+      <!-- 主体 -->
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </el-container>
   </el-container>
-</el-container>
 </template>
 
 <script>
 export default {
-  name:'Home',
-  data() {
+  name: 'Home',
+  created () {
+    this.getMenu()
+  },
+  data () {
     return {
-      
+      menulist: []
     }
   },
   methods: {
-    change(){
+    change () {
       window.sessionStorage.clear();
       this.$router.push('/login')
+    },
+    async getMenu () {
+      const { data: res } = await this.$http.get('menus')
+      console.log(res);
+      if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
+      this.menulist = res.data
     }
-  },
+  }
 }
+
 </script>
 
-<style>
-.el-container{
+ <style lang="less" scoped>
+
+.el-container {
   height: 100%;
+  
 }
-.el-header{
-  background-color: rgba(19, 111, 148, 0.774);
+.el-header {
+  background-color: #348ac4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 25px;
 }
-.el-aside{
-  background-color: rgba(19, 111, 148, 0.774);
+.el-header > div {
+  display: flex;
+  align-items: center;
+  margin-left: 17px;
 }
+.el-header > div span {
+  margin-bottom: 3px;
+  margin-left: 9px;
+}
+.el-aside {
+  background-color:#3a8ec7;
+  .el-menu{
+  border-right:none;
+}
+}
+.el-main{
+  background-color: #eaedf1;
+}
+
+
+
 </style>
