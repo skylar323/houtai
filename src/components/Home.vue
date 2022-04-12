@@ -4,7 +4,7 @@
     <el-header>
       <div>
         <img src="../logo_jw_w.png">
-        <span>选课系统</span>
+        <span>后台管理系统</span>
       </div>
       <el-button @click="change">退出
       </el-button>
@@ -15,16 +15,17 @@
         <el-menu class="el-menu-vertical-demo"
          background-color="#3a8ec7"
          text-color="#fff" margin-left=30px unique-opened 
-          router :default-active="$route.path"  >
+          router :default-active="activePath" >
         <!-- 一级菜单 -->
-          <el-submenu :index='`${item.id} `' v-for="item in menulist" 
+          <el-submenu :index="item.id + ''" v-for="item in menulist" 
           :key="item.id">
             <template slot="title">
               <span>{{item.authName}}</span>
             </template>
             <!-- 二级菜单 -->
-            <el-menu-item :index='`/${subItem.path} `'
-            v-for="subItem in item.children" :key="subItem.id">
+            <el-menu-item :index="'/' + subItem.path"
+            v-for="subItem in item.children" :key="subItem.id" 
+            @click="saveNavState('/' + subItem.path)" >
             <template slot="title">
               <span>{{subItem.authName}}</span>
             </template>
@@ -32,8 +33,9 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <!-- 主体 -->
+      <!-- 右侧内容主体 -->
       <el-main>
+        <!-- 路由占位符 -->
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -48,7 +50,8 @@ export default {
   },
   data () {
     return {
-      menulist: []
+      menulist: [],
+      activePath: ''
     }
   },
   methods: {
@@ -56,11 +59,14 @@ export default {
       window.sessionStorage.clear();
       this.$router.push('/login')
     },
-    async getMenu () {
+    async getMenu() {
       const { data: res } = await this.$http.get('menus')
-      console.log(res);
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg);
       this.menulist = res.data
+    },
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     }
   }
 }
